@@ -1,0 +1,248 @@
+2026-01-08 00:20:42 | ERROR | logging:callHandlers - Error: Pygraphviz cannot be loaded. No module named 'pygraphviz'
+Trying pydot ...
+2026-01-08 00:20:45 | ERROR | __main__:run_step - 
+✗ Step 4 failed with error: Cannot use a classifier as a first stage model when the target is continuous!
+2026-01-08 00:20:45 | ERROR | __main__:run_step - Cannot use a classifier as a first stage model when the target is continuous!
+Traceback (most recent call last):
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 256, in <module>
+    main()
+    └ <function main at 0x7f5dec9e4720>
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 246, in main
+    success = orchestrator.run_full_pipeline()
+              │            └ <function PipelineOrchestrator.run_full_pipeline at 0x7f5dec9e4540>
+              └ <__main__.PipelineOrchestrator object at 0x7f5e28448800>
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 126, in run_full_pipeline
+    if not self.run_step(4, "Causal Estimation (ATE & CATE)", run_estimation):
+           │    │                                             └ <function main at 0x7f5dec9a3420>
+           │    └ <function PipelineOrchestrator.run_step at 0x7f5dec9e44a0>
+           └ <__main__.PipelineOrchestrator object at 0x7f5e28448800>
+
+> File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 84, in run_step
+    success = step_func()
+              └ <function main at 0x7f5dec9a3420>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 380, in main
+    results = estimator.run_estimation()
+              │         └ <function CausalEstimator.run_estimation at 0x7f5dec9a31a0>
+              └ <src.causal.estimation.CausalEstimator object at 0x7f5def004f20>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 282, in run_estimation
+    cate_results = self.estimate_cate_econml(X, T, Y)
+                   │    │                    │  │  └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                   │    │                    │  │           154.47309566, 155.19743488], shape=(10000,))
+                   │    │                    │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                   │    │                    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                   │    │                      0     36.0             1        ...
+                   │    └ <function CausalEstimator.estimate_cate_econml at 0x7f5dec9a2fc0>
+                   └ <src.causal.estimation.CausalEstimator object at 0x7f5def004f20>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 183, in estimate_cate_econml
+    self.cate_estimator.fit(Y, T, X=X, W=None)
+    │    │              │   │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+    │    │              │   │  │      0     36.0             1        ...
+    │    │              │   │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+    │    │              │   └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+    │    │              │            154.47309566, 155.19743488], shape=(10000,))
+    │    │              └ <function CausalForestDML.fit at 0x7f5dec9a2480>
+    │    └ <econml.dml.causal_forest.CausalForestDML object at 0x7f5dec27b530>
+    └ <src.causal.estimation.CausalEstimator object at 0x7f5def004f20>
+
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/causal_forest.py", line 964, in fit
+    return super().fit(Y, T, X=X, W=W,
+                       │  │    │    └ None
+                       │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                       │  │      0     36.0             1        ...
+                       │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                       └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                                154.47309566, 155.19743488], shape=(10000,))
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/_rlearner.py", line 501, in fit
+    return super().fit(Y, T, X=X, W=W,
+                       │  │    │    └ None
+                       │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                       │  │      0     36.0             1        ...
+                       │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                       └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                                154.47309566, 155.19743488], shape=(10000,))
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_cate_estimator.py", line 134, in call
+    m(self, Y, T, *args, **kwargs)
+    │ │     │  │   │       └ {'X':        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+    │ │     │  │   │         0     36.0             1  ...
+    │ │     │  │   └ ()
+    │ │     │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+    │ │     └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+    │ │              154.47309566, 155.19743488], shape=(10000,))
+    │ └ <econml.dml.causal_forest.CausalForestDML object at 0x7f5dec27b530>
+    └ <function _OrthoLearner.fit at 0x7f5dec935760>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 821, in fit
+    nuisances, fitted_models, new_inds, scores = self._fit_nuisances(
+                                                 │    └ <function _OrthoLearner._fit_nuisances at 0x7f5dec9359e0>
+                                                 └ <econml.dml.causal_forest.CausalForestDML object at 0x7f5dec27b530>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 971, in _fit_nuisances
+    nuisances, fitted_models, fitted_inds, scores = _crossfit(self._ortho_learner_model_nuisance, folds,
+                                                    │         │    │                              └ <generator object _BaseKFold.split at 0x7f5de800f340>
+                                                    │         │    └ <econml.dml._rlearner._ModelNuisance object at 0x7f5dec6db260>
+                                                    │         └ <econml.dml.causal_forest.CausalForestDML object at 0x7f5dec27b530>
+                                                    └ <function _crossfit at 0x7f5decb94f40>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 278, in _crossfit
+    nuisance_temp, model_out, score_temp = _fit_fold(model, train_idxs, test_idxs,
+                                           │         │      │           └ array([   0,    3,    8, ..., 9993, 9996, 9998], shape=(5000,))
+                                           │         │      └ array([   1,    2,    4, ..., 9995, 9997, 9999], shape=(5000,))
+                                           │         └ <econml.dml._rlearner._ModelNuisance object at 0x7f5dec6db260>
+                                           └ <function _fit_fold at 0x7f5df8c40ae0>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 98, in _fit_fold
+    nuisance_temp = model.predict(*args_test, **kwargs_test)
+                    │     │        │            └ {'X': array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+                    │     │        │                     [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+                    │     │        │                     ...
+                    │     │        └ (array([194.15647115,  57.70800489, 233.04425792, ..., 207.37995362,
+                    │     │                 135.87392404, 154.47309566], shape=(5000,)), arra...
+                    │     └ <function _ModelNuisance.predict at 0x7f5dec9365c0>
+                    └ <econml.dml._rlearner._ModelNuisance object at 0x7f5debf93980>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/_rlearner.py", line 72, in predict
+    T_pred = self._model_t.predict(X, W)
+             │    │        │       │  └ None
+             │    │        │       └ array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+             │    │        │                [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+             │    │        │                [ 75. ...
+             │    │        └ <function SingleModelSelector.predict at 0x7f5dec92b6a0>
+             │    └ <econml.dml.dml._FirstStageSelector object at 0x7f5debf93920>
+             └ <econml.dml._rlearner._ModelNuisance object at 0x7f5debf93980>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/sklearn_extensions/model_selection.py", line 326, in predict
+    return self.best_model.predict(*args, **kwargs)
+           │    │                   │       └ {}
+           │    │                   └ (array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+           │    │                            [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+           │    │                            [ 75....
+           │    └ <property object at 0x7f5dec931260>
+           └ <econml.dml.dml._FirstStageSelector object at 0x7f5debf93920>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/dml.py", line 55, in predict
+    raise AttributeError("Cannot use a classifier as a first stage model when the target is continuous!")
+
+AttributeError: Cannot use a classifier as a first stage model when the target is continuous!
+2026-01-08 00:20:45 | ERROR | __main__:print_summary - ✗ Pipeline failed
+2026-01-08 00:28:13 | ERROR | __main__:run_step - 
+✗ Step 4 failed with error: Cannot use a classifier as a first stage model when the target is continuous!
+2026-01-08 00:28:13 | ERROR | __main__:run_step - Cannot use a classifier as a first stage model when the target is continuous!
+Traceback (most recent call last):
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 256, in <module>
+    main()
+    └ <function main at 0x7ff291a14540>
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 246, in main
+    success = orchestrator.run_full_pipeline()
+              │            └ <function PipelineOrchestrator.run_full_pipeline at 0x7ff291a14360>
+              └ <__main__.PipelineOrchestrator object at 0x7ff2c7ce0800>
+
+  File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 126, in run_full_pipeline
+    if not self.run_step(4, "Causal Estimation (ATE & CATE)", run_estimation):
+           │    │                                             └ <function main at 0x7ff291a07420>
+           │    └ <function PipelineOrchestrator.run_step at 0x7ff291a142c0>
+           └ <__main__.PipelineOrchestrator object at 0x7ff2c7ce0800>
+
+> File "/mnt/d/Coding/decision-intelligence-system/run_pipeline.py", line 84, in run_step
+    success = step_func()
+              └ <function main at 0x7ff291a07420>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 380, in main
+    results = estimator.run_estimation()
+              │         └ <function CausalEstimator.run_estimation at 0x7ff291a071a0>
+              └ <src.causal.estimation.CausalEstimator object at 0x7ff291e7fbc0>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 282, in run_estimation
+    cate_results = self.estimate_cate_econml(X, T, Y)
+                   │    │                    │  │  └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                   │    │                    │  │           154.47309566, 155.19743488], shape=(10000,))
+                   │    │                    │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                   │    │                    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                   │    │                      0     36.0             1        ...
+                   │    └ <function CausalEstimator.estimate_cate_econml at 0x7ff291a06fc0>
+                   └ <src.causal.estimation.CausalEstimator object at 0x7ff291e7fbc0>
+
+  File "/mnt/d/Coding/decision-intelligence-system/src/causal/estimation.py", line 183, in estimate_cate_econml
+    self.cate_estimator.fit(Y, T, X=X, W=None)
+    │    │              │   │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+    │    │              │   │  │      0     36.0             1        ...
+    │    │              │   │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+    │    │              │   └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+    │    │              │            154.47309566, 155.19743488], shape=(10000,))
+    │    │              └ <function CausalForestDML.fit at 0x7ff291a06480>
+    │    └ <econml.dml.causal_forest.CausalForestDML object at 0x7ff291a57b00>
+    └ <src.causal.estimation.CausalEstimator object at 0x7ff291e7fbc0>
+
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/causal_forest.py", line 964, in fit
+    return super().fit(Y, T, X=X, W=W,
+                       │  │    │    └ None
+                       │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                       │  │      0     36.0             1        ...
+                       │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                       └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                                154.47309566, 155.19743488], shape=(10000,))
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/_rlearner.py", line 501, in fit
+    return super().fit(Y, T, X=X, W=W,
+                       │  │    │    └ None
+                       │  │    └        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+                       │  │      0     36.0             1        ...
+                       │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+                       └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+                                154.47309566, 155.19743488], shape=(10000,))
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_cate_estimator.py", line 134, in call
+    m(self, Y, T, *args, **kwargs)
+    │ │     │  │   │       └ {'X':        age  income_level  region_encoded  ...  engagement_score  season_encoded  day_of_week
+    │ │     │  │   │         0     36.0             1  ...
+    │ │     │  │   └ ()
+    │ │     │  └ array([1, 0, 0, ..., 0, 1, 0], shape=(10000,))
+    │ │     └ array([194.15647115, 170.72817695,  34.94511172, ..., 114.23225655,
+    │ │              154.47309566, 155.19743488], shape=(10000,))
+    │ └ <econml.dml.causal_forest.CausalForestDML object at 0x7ff291a57b00>
+    └ <function _OrthoLearner.fit at 0x7ff291d5d760>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 821, in fit
+    nuisances, fitted_models, new_inds, scores = self._fit_nuisances(
+                                                 │    └ <function _OrthoLearner._fit_nuisances at 0x7ff291d5d9e0>
+                                                 └ <econml.dml.causal_forest.CausalForestDML object at 0x7ff291a57b00>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 971, in _fit_nuisances
+    nuisances, fitted_models, fitted_inds, scores = _crossfit(self._ortho_learner_model_nuisance, folds,
+                                                    │         │    │                              └ <generator object _BaseKFold.split at 0x7ff29045edf0>
+                                                    │         │    └ <econml.dml._rlearner._ModelNuisance object at 0x7ff291ee7470>
+                                                    │         └ <econml.dml.causal_forest.CausalForestDML object at 0x7ff291a57b00>
+                                                    └ <function _crossfit at 0x7ff291d24f40>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 278, in _crossfit
+    nuisance_temp, model_out, score_temp = _fit_fold(model, train_idxs, test_idxs,
+                                           │         │      │           └ array([   0,    3,    8, ..., 9993, 9996, 9998], shape=(5000,))
+                                           │         │      └ array([   1,    2,    4, ..., 9995, 9997, 9999], shape=(5000,))
+                                           │         └ <econml.dml._rlearner._ModelNuisance object at 0x7ff291ee7470>
+                                           └ <function _fit_fold at 0x7ff29dfd4ae0>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/_ortho_learner.py", line 98, in _fit_fold
+    nuisance_temp = model.predict(*args_test, **kwargs_test)
+                    │     │        │            └ {'X': array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+                    │     │        │                     [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+                    │     │        │                     ...
+                    │     │        └ (array([194.15647115,  57.70800489, 233.04425792, ..., 207.37995362,
+                    │     │                 135.87392404, 154.47309566], shape=(5000,)), arra...
+                    │     └ <function _ModelNuisance.predict at 0x7ff291d5e5c0>
+                    └ <econml.dml._rlearner._ModelNuisance object at 0x7ff2918c2120>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/_rlearner.py", line 72, in predict
+    T_pred = self._model_t.predict(X, W)
+             │    │        │       │  └ None
+             │    │        │       └ array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+             │    │        │                [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+             │    │        │                [ 75. ...
+             │    │        └ <function SingleModelSelector.predict at 0x7ff291d536a0>
+             │    └ <econml.dml.dml._FirstStageSelector object at 0x7ff2918c3dd0>
+             └ <econml.dml._rlearner._ModelNuisance object at 0x7ff2918c2120>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/sklearn_extensions/model_selection.py", line 326, in predict
+    return self.best_model.predict(*args, **kwargs)
+           │    │                   │       └ {}
+           │    │                   └ (array([[ 36. ,   1. ,   2. , ...,  84.1,   1. ,   5. ],
+           │    │                            [ 31. ,   1. ,   0. , ...,  47.8,   3. ,   5. ],
+           │    │                            [ 75....
+           │    └ <property object at 0x7ff291d610d0>
+           └ <econml.dml.dml._FirstStageSelector object at 0x7ff2918c3dd0>
+  File "/mnt/d/Coding/decision-intelligence-system/venv/lib/python3.12/site-packages/econml/dml/dml.py", line 55, in predict
+    raise AttributeError("Cannot use a classifier as a first stage model when the target is continuous!")
+
+AttributeError: Cannot use a classifier as a first stage model when the target is continuous!
+2026-01-08 00:28:13 | ERROR | __main__:print_summary - ✗ Pipeline failed

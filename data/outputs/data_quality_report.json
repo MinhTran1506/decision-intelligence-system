@@ -1,0 +1,106 @@
+{
+  "overall_pass": true,
+  "checks": {
+    "required_columns": {
+      "pass": true
+    },
+    "null_rates": {
+      "pass": true
+    },
+    "unique_keys": {
+      "pass": true
+    },
+    "treatment_support": {
+      "pass": true,
+      "rates": {
+        "0": 0.7044,
+        "1": 0.2956
+      }
+    },
+    "propensity_overlap": {
+      "pass": true,
+      "outside_overlap_count": 0,
+      "outside_overlap_rate": 0.0,
+      "propensity_range": [
+        0.17446546033241775,
+        0.4400547284381423
+      ],
+      "propensity_mean": 0.29559740264335976
+    },
+    "covariate_balance": {
+      "pass": true,
+      "balance_results": {
+        "age": {
+          "smd": 0.15102110479588687,
+          "ks_statistic": 0.0778166852239048,
+          "ks_pvalue": 2.0466551044534684e-11
+        },
+        "income_level": {
+          "smd": 0.13756644209118982,
+          "ks_statistic": 0.11048606900833655,
+          "ks_pvalue": 1.3765032411182471e-22
+        },
+        "region_encoded": {
+          "smd": 0.025763837378789914,
+          "ks_statistic": 0.01817072505396199,
+          "ks_pvalue": 0.4905120421413323
+        },
+        "past_purchases": {
+          "smd": 0.14021703887237372,
+          "ks_statistic": 0.06854959239391445,
+          "ks_pvalue": 5.913628285788735e-09
+        },
+        "days_since_signup": {
+          "smd": 0.15223777982338838,
+          "ks_statistic": 0.07542460728196781,
+          "ks_pvalue": 9.465686713408405e-11
+        },
+        "engagement_score": {
+          "smd": 0.18989692048503107,
+          "ks_statistic": 0.0860318170187163,
+          "ks_pvalue": 7.381409238423136e-14
+        },
+        "season_encoded": {
+          "smd": 0.0013547328696306906,
+          "ks_statistic": 0.007418476861851928,
+          "ks_pvalue": 0.9997966084984699
+        },
+        "day_of_week": {
+          "smd": 0.009883580298202245,
+          "ks_statistic": 0.015257853400124022,
+          "ks_pvalue": 0.7100607568338413
+        }
+      },
+      "imbalanced_features": 5
+    },
+    "outcome_distribution": {
+      "pass": true,
+      "stats": {
+        "count": 10000,
+        "mean": 139.91733746057943,
+        "std": 47.90359166280749,
+        "min": 21.84175822301369,
+        "max": 332.56399686445275,
+        "negative_count": 0,
+        "zero_count": 0
+      }
+    },
+    "cardinality": {
+      "pass": true,
+      "cardinality": {
+        "age": 58,
+        "income_level": 5,
+        "region_encoded": 4,
+        "past_purchases": 16,
+        "days_since_signup": 366,
+        "engagement_score": 948,
+        "season_encoded": 4,
+        "day_of_week": 7
+      }
+    }
+  },
+  "warnings": [
+    "5 features show imbalance between groups"
+  ],
+  "errors": []
+}
