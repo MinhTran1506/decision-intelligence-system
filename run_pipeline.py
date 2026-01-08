@@ -158,6 +158,83 @@ class PipelineOrchestrator:
         
         return success
     
+    def register_model(self):
+        """Register the trained model in the registry"""
+        try:
+            from src.services.model_registry import get_registry
+            import pandas as pd
+            import json
+            from src.utils.config import FILE_PATHS
+            
+            registry = get_registry()
+            
+            # Load results
+            uplift_df = pd.read_parquet(FILE_PATHS["uplift_scores"])
+            
+            refutation_report = {}
+            if FILE_PATHS["refutation_report"].exists():
+                with open(FILE_PATHS["refutation_report"], 'r') as f:
+                    refutation_report = json.load(f)
+            
+            # Calculate metrics
+            ate_estimate = float(uplift_df['uplift_score'].mean())
+            cate_std = float(uplift_df['uplift_score'].std())
+            
+            tests = refutation_report.get('tests', {})
+            if tests and isinstance(tests, dict):
+                passed = sum(1 for t in tests.values() if str(t.get('passed', '')).lower() == 'true')
+                refutation_pass_rate = (passed / len(tests)) * 100 if tests else 100
+            else:
+                refutation_pass_rate = 100
+            
+            # Register model
+            model_id = registry.register_model(
+                model_name="causal_forest_marketing",
+                version=f"v{datetime.now().strftime('%Y%m%d_%H%M')}",
+                ate_estimate=ate_estimate,
+                cate_std=cate_std,
+                refutation_pass_rate=refutation_pass_rate,
+                training_rows=len(uplift_df),
+                notes="Pipeline run"
+            )
+            
+            # Auto-promote if good
+            if refutation_pass_rate >= 80:
+                registry.promote_model(model_id)
+                logger.info(f"✓ Model {model_id} promoted to production")
+            
+            self.results['model_id'] = model_id
+            self.results['ate_estimate'] = ate_estimate
+            self.results['refutation_pass_rate'] = refutation_pass_rate
+            
+            return True
+        except Exception as e:
+            logger.warning(f"Could not register model: {e}")
+            return True  # Don't fail pipeline for registration issues
+    
+    def send_notification(self):
+        """Send pipeline completion notification"""
+        try:
+            from src.services.notifications import notify_pipeline_complete, notify_pipeline_failure
+            
+            total_time = time.time() - self.start_time
+            
+            if self.results['success']:
+                notify_pipeline_complete(
+                    ate_estimate=self.results.get('ate_estimate', 0),
+                    refutation_pass_rate=self.results.get('refutation_pass_rate', 0),
+                    n_records=10000,
+                    duration_seconds=total_time
+                )
+            else:
+                failed_steps = self.results.get('steps_failed', ['Unknown'])
+                notify_pipeline_failure(
+                    step=failed_steps[0] if failed_steps else 'Unknown',
+                    error='Pipeline failed'
+                )
+        except Exception as e:
+            logger.warning(f"Could not send notification: {e}")
+    
     def print_summary(self):
         """Print pipeline execution summary"""
         total_time = time.time() - self.start_time
@@ -244,6 +321,11 @@ def main():
         success = orchestrator.run_single_step(args.step)
     else:
         success = orchestrator.run_full_pipeline()
+        
+        # Register model and send notification for full runs
+        if success:
+            orchestrator.register_model()
+        orchestrator.send_notification()
     
     # Print summary
     orchestrator.print_summary()

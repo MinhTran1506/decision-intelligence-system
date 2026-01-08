@@ -1,0 +1,19 @@
+{
+  "run_timestamp": "2026-01-08T16:30:03.522348",
+  "n_records_current": 100,
+  "n_records_baseline": 100,
+  "drift_detected": false,
+  "features_with_drift": [],
+  "feature_results": {
+    "age": {
+      "type": "numeric",
+      "ks_statistic": 0.1,
+      "p_value": 0.7020569828664881,
+      "threshold": 0.15,
+      "drift_detected": false,
+      "baseline_mean": 39.82126420345524,
+      "current_mean": 39.82126420345524,
+      "mean_shift": 0.0
+    }
+  }
+}

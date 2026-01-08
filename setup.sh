@@ -129,7 +129,7 @@ echo "Installing visualization and UI..."
 pip install --quiet matplotlib seaborn plotly streamlit 2>&1 | grep -v "already satisfied" || true
 
 echo "Installing utilities..."
-pip install --quiet loguru click tqdm pyyaml python-dotenv duckdb 2>&1 | grep -v "already satisfied" || true
+pip install --quiet loguru click tqdm pyyaml python-dotenv duckdb requests 2>&1 | grep -v "already satisfied" || true
 
 echo "Installing testing framework..."
 pip install --quiet pytest pytest-cov 2>&1 | grep -v "already satisfied" || true

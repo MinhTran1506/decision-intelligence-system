@@ -26,6 +26,8 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.utils.config import API_CONFIG, FILE_PATHS
 from src.utils.logging_config import get_logger
+from src.services.data_store import get_store
+from src.services.ab_test_manager import get_ab_manager
 
 logger = get_logger(__name__)
 
@@ -278,14 +280,116 @@ async def get_feature_importance() -> List[FeatureImportanceResponse]:
     return [FeatureImportanceResponse(**item) for item in importance_data]
 
 
+# ==================== A/B Testing Endpoints ====================
+
+class CreateExperimentRequest(BaseModel):
+    """Request to create new A/B test"""
+    name: str
+    segment: str
+    sample_size: int
+    description: str = ""
+    control_ratio: float = 0.5
+    hypothesis: str = ""
+
+
+class AssignUserRequest(BaseModel):
+    """Request to assign user to experiment"""
+    test_id: str
+    user_id: str
+
+
+class RecordConversionRequest(BaseModel):
+    """Request to record conversion event"""
+    test_id: str
+    user_id: str
+    value: float = 1.0
+    event_type: str = "conversion"
+
+
+@app.post("/ab-test/create")
+async def create_experiment(request: CreateExperimentRequest):
+    """Create a new A/B test experiment"""
+    manager = get_ab_manager()
+    result = manager.create_experiment(
+        name=request.name,
+        segment=request.segment,
+        sample_size=request.sample_size,
+        description=request.description,
+        control_ratio=request.control_ratio,
+        hypothesis=request.hypothesis
+    )
+    return result
+
+
+@app.post("/ab-test/start/{test_id}")
+async def start_experiment(test_id: str):
+    """Start an A/B test experiment"""
+    manager = get_ab_manager()
+    return manager.start_experiment(test_id)
+
+
+@app.post("/ab-test/stop/{test_id}")
+async def stop_experiment(test_id: str):
+    """Stop an A/B test and get final results"""
+    manager = get_ab_manager()
+    return manager.stop_experiment(test_id)
+
+
+@app.post("/ab-test/assign")
+async def assign_user_to_experiment(request: AssignUserRequest):
+    """Assign a user to an experiment group"""
+    manager = get_ab_manager()
+    group = manager.assign_user(request.test_id, request.user_id)
+    
+    if group:
+        return {
+            "status": "assigned",
+            "test_id": request.test_id,
+            "user_id": request.user_id,
+            "group": group
+        }
+    return {"status": "error", "message": "Could not assign user. Test may not be running."}
+
+
+@app.post("/ab-test/conversion")
+async def record_conversion(request: RecordConversionRequest):
+    """Record a conversion event"""
+    manager = get_ab_manager()
+    return manager.record_conversion(
+        test_id=request.test_id,
+        user_id=request.user_id,
+        value=request.value,
+        event_type=request.event_type
+    )
+
+
+@app.get("/ab-test/{test_id}/results")
+async def get_experiment_results(test_id: str):
+    """Get current results for an experiment"""
+    manager = get_ab_manager()
+    return manager.get_experiment_results(test_id)
+
+
+@app.get("/ab-test/list")
+async def list_experiments(status: Optional[str] = None):
+    """List all experiments"""
+    manager = get_ab_manager()
+    tests = manager.list_experiments(status)
+    summary = manager.get_summary_stats()
+    
+    return {
+        "summary": summary,
+        "tests": tests
+    }
+
+
 @app.post("/ab-test/submit")
 async def submit_ab_test_result(result: ABTestResult):
     """
-    Submit A/B test results for model validation
+    Submit A/B test results for model validation (legacy endpoint)
     
     This creates a feedback loop for continuous model improvement
     """
-    # Store result (in production, write to database)
     logger.info(f"A/B test result received: {result.test_id}")
     
     # Calculate prediction error
@@ -301,51 +405,38 @@ async def submit_ab_test_result(result: ABTestResult):
         'prediction_error': round(error, 2),
         'error_percentage': round(error_pct, 1),
         'well_calibrated': well_calibrated,
-        'message': 'Test result recorded successfully. Model will be updated in next training cycle.' if well_calibrated else 'Large prediction error detected. Consider model retraining.',
+        'message': 'Test result recorded successfully.' if well_calibrated else 'Large prediction error detected.',
     }
 
 
 @app.get("/ab-test/history")
 async def get_ab_test_history():
-    """Get historical A/B test results"""
-    # Simulate historical results
-    history = [
-        {
-            'test_id': 'TEST-001',
-            'segment': 'High Uplift',
-            'predicted_uplift': 89.4,
-            'observed_uplift': 87.6,
-            'sample_size': 1000,
-            'error_pct': 2.0,
-            'status': 'Completed',
-            'date': '2024-12-01',
-        },
-        {
-            'test_id': 'TEST-002',
-            'segment': 'Medium-High',
-            'predicted_uplift': 52.2,
-            'observed_uplift': 49.8,
-            'sample_size': 1500,
-            'error_pct': 4.6,
-            'status': 'Completed',
-            'date': '2024-12-15',
-        },
-        {
-            'test_id': 'TEST-003',
-            'segment': 'All Users',
-            'predicted_uplift': 45.2,
-            'observed_uplift': None,
-            'sample_size': 5000,
-            'error_pct': None,
-            'status': 'Running',
-            'date': '2025-01-01',
-        },
-    ]
+    """Get A/B test history from database"""
+    manager = get_ab_manager()
+    tests = manager.list_experiments()
+    
+    # Format for API response
+    history = []
+    for t in tests:
+        history.append({
+            'test_id': t['test_id'],
+            'name': t['name'],
+            'segment': t['segment'],
+            'predicted_uplift': t['predicted_uplift'],
+            'observed_uplift': t['observed_uplift'],
+            'sample_size': t['sample_size'],
+            'status': t['status'],
+            'start_date': t['start_date'],
+            'end_date': t['end_date'],
+        })
+    
+    summary = manager.get_summary_stats()
     
     return {
-        'total_tests': len(history),
-        'completed': sum(1 for t in history if t['status'] == 'Completed'),
-        'avg_error_pct': np.mean([t['error_pct'] for t in history if t['error_pct'] is not None]),
+        'total_tests': summary['total_tests'],
+        'completed': summary['completed'],
+        'running': summary['running'],
+        'avg_prediction_error': summary['avg_prediction_error'],
         'tests': history,
     }
 
@@ -428,34 +519,157 @@ async def get_segment_performance():
     return segment_stats
 
 
+# ==================== Real-time Event Logging ====================
+
+class LogEventRequest(BaseModel):
+    """Request to log a real-time event"""
+    user_id: str
+    uplift_score: float
+    segment: str
+    recommendation: str
+    features: Optional[Dict[str, Any]] = None
+
+
+@app.post("/events/log")
+async def log_realtime_event(request: LogEventRequest):
+    """Log a real-time scoring event to the database"""
+    store = get_store()
+    
+    event_id = store.log_realtime_event(
+        user_id=request.user_id,
+        uplift_score=request.uplift_score,
+        segment=request.segment,
+        recommendation=request.recommendation,
+        features=request.features
+    )
+    
+    # Broadcast to WebSocket clients
+    await manager.broadcast({
+        'type': 'new_score',
+        'timestamp': datetime.now().isoformat(),
+        'user_id': request.user_id,
+        'uplift_score': request.uplift_score,
+        'segment': request.segment,
+        'recommendation': request.recommendation,
+    })
+    
+    return {
+        "status": "logged",
+        "event_id": event_id,
+        "user_id": request.user_id
+    }
+
+
+@app.get("/events/recent")
+async def get_recent_events(limit: int = 100):
+    """Get recent real-time events from database"""
+    store = get_store()
+    events = store.get_recent_events(limit)
+    stats = store.get_event_stats(hours=24)
+    
+    return {
+        "events": events,
+        "stats_24h": stats
+    }
+
+
+@app.get("/events/stats")
+async def get_event_stats(hours: int = 24):
+    """Get event statistics for the last N hours"""
+    store = get_store()
+    return store.get_event_stats(hours)
+
+
+@app.get("/events/unprocessed")
+async def get_unprocessed_events(limit: int = 1000):
+    """Get unprocessed events for batch model training"""
+    store = get_store()
+    events = store.get_unprocessed_events(limit)
+    
+    return {
+        "count": len(events),
+        "events": events
+    }
+
+
+@app.post("/events/mark-processed")
+async def mark_events_processed(event_ids: List[int]):
+    """Mark events as processed after model training"""
+    store = get_store()
+    success = store.mark_events_processed(event_ids)
+    
+    return {"status": "success" if success else "failed", "count": len(event_ids)}
+
+
+# ==================== Alerts ====================
+
 @app.get("/alerts/active")
 async def get_active_alerts():
-    """Get active system alerts"""
-    alerts = [
-        {
-            'id': 'alert_001',
-            'type': 'LOW_TREATMENT_RATE',
-            'severity': 'WARNING',
-            'message': 'Treatment rate below threshold (4.8% vs 10% target)',
-            'timestamp': (datetime.now() - timedelta(minutes=2)).isoformat(),
-        },
-        {
-            'id': 'alert_002',
-            'type': 'HIGH_VALUE_CUSTOMER',
-            'severity': 'INFO',
-            'message': 'High-value customer detected (user_00234567, uplift: $89.45)',
-            'timestamp': (datetime.now() - timedelta(minutes=5)).isoformat(),
-        }
-    ]
+    """Get active system alerts from database"""
+    store = get_store()
+    db_alerts = store.get_active_alerts()
+    
+    # Combine with some computed alerts
+    alerts = []
+    
+    for alert in db_alerts:
+        alerts.append({
+            'id': alert['id'],
+            'type': alert['alert_type'],
+            'severity': alert['severity'],
+            'message': alert['message'],
+            'timestamp': alert['created_at'],
+        })
+    
+    # Add computed alerts based on current state
+    if uplift_data is not None:
+        treatment_rate = uplift_data['treatment'].mean()
+        if treatment_rate < 0.1:
+            alerts.append({
+                'id': 'computed_001',
+                'type': 'LOW_TREATMENT_RATE',
+                'severity': 'WARNING',
+                'message': f'Treatment rate below threshold ({treatment_rate:.1%} vs 10% target)',
+                'timestamp': datetime.now().isoformat(),
+            })
     
     return {
         'total': len(alerts),
         'by_severity': {
-            'WARNING': 1,
-            'INFO': 1,
+            'WARNING': sum(1 for a in alerts if a['severity'] == 'WARNING'),
+            'INFO': sum(1 for a in alerts if a['severity'] == 'INFO'),
+            'ERROR': sum(1 for a in alerts if a['severity'] == 'ERROR'),
         },
         'alerts': alerts,
     }
+
+
+@app.post("/alerts/create")
+async def create_alert(alert_type: str, severity: str, message: str):
+    """Create a new alert"""
+    store = get_store()
+    alert_id = store.create_alert(alert_type, severity, message)
+    
+    # Broadcast to WebSocket clients
+    await manager.broadcast({
+        'type': 'alert',
+        'alert_id': alert_id,
+        'alert_type': alert_type,
+        'severity': severity,
+        'message': message,
+        'timestamp': datetime.now().isoformat(),
+    })
+    
+    return {"status": "created", "alert_id": alert_id}
+
+
+@app.post("/alerts/resolve/{alert_id}")
+async def resolve_alert(alert_id: int):
+    """Resolve an alert"""
+    store = get_store()
+    success = store.resolve_alert(alert_id)
+    
+    return {"status": "resolved" if success else "not_found"}
 
 
 # Error handler
