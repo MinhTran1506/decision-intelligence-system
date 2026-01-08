@@ -1,0 +1,36 @@
+INFO:     Will watch for changes in these directories: ['C:\\minhtran\\coding\\decision-intelligence-system']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [4788] using WatchFiles
+INFO:     Started server process [1804]
+INFO:     Waiting for application startup.
+[32m2026-01-08 16:40:02[0m | [1mINFO    [0m | [36msrc.api.realtime_api[0m:[36mlifespan[0m - [1mLoading model data...[0m
+[32m2026-01-08 16:40:02[0m | [1mINFO    [0m | [36msrc.api.realtime_api[0m:[36mlifespan[0m - [1m[OK] Loaded 10000 uplift scores[0m
+[32m2026-01-08 16:40:02[0m | [1mINFO    [0m | [36msrc.api.realtime_api[0m:[36mlifespan[0m - [1m[OK] API ready with real-time capabilities[0m
+INFO:     Application startup complete.
+INFO:     127.0.0.1:48475 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:31081 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:1461 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57624 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:5825 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41302 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43900 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42994 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54486 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:14042 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:29280 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:29281 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:15184 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64953 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:3312 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65215 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35466 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:3484 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62355 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63373 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62177 - "GET /health HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[32m2026-01-08 16:55:21[0m | [1mINFO    [0m | [36msrc.api.realtime_api[0m:[36mlifespan[0m - [1mShutting down API...[0m
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1804]
+INFO:     Stopping reloader process [4788]
