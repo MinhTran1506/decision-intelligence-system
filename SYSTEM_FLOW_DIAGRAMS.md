@@ -197,48 +197,61 @@ flowchart TD
     
     NAV -->|Click Real-time| RT[📡 Real-time Monitoring]
     NAV -->|Click A/B Test| AB[🧪 A/B Test Tracking]
+    NAV -->|Click Customer| CUSTOMER[🔍 Customer Lookup]
     NAV -->|Click Models| MODEL[🔬 Model Comparison]
-    NAV -->|Click Analytics| ANALYTICS[🔍 Advanced Analytics]
+    NAV -->|Click Registry| REGISTRY[📦 Model Registry]
+    NAV -->|Click Analytics| ANALYTICS[📈 Advanced Analytics]
     NAV -->|Stay| OVERVIEW
     
     RT --> INTERACT1{User<br/>Interaction}
     AB --> INTERACT2{User<br/>Interaction}
-    MODEL --> INTERACT3{User<br/>Interaction}
-    ANALYTICS --> INTERACT4{User<br/>Interaction}
+    CUSTOMER --> INTERACT3{User<br/>Interaction}
+    MODEL --> INTERACT4{User<br/>Interaction}
+    REGISTRY --> INTERACT5{User<br/>Interaction}
+    ANALYTICS --> INTERACT6{User<br/>Interaction}
     
     INTERACT1 -->|View Metrics| DISPLAY1[Show Live Stats]
-    INTERACT1 -->|Hover Chart| TOOLTIP1[Show Tooltip]
-    INTERACT1 -->|Scroll| TABLE1[Show Recent Events]
+    INTERACT1 -->|View Trends| TRENDS1[Line Charts Over Time]
+    INTERACT1 -->|Simulate Events| SIM1[Generate Test Events]
     
-    INTERACT2 -->|Filter Tests| FILTER[Apply Filter]
-    INTERACT2 -->|View Calibration| PLOT[Show Scatter Plot]
-    INTERACT2 -->|Check Metrics| METRICS[Show MAE/MAPE]
+    INTERACT2 -->|Create Test| CREATE2[Setup A/B Test]
+    INTERACT2 -->|View Results| RESULTS2[Show Test Outcomes]
+    INTERACT2 -->|Complete Test| COMPLETE2[Declare Winner]
     
-    INTERACT3 -->|Sort Table| SORT[Re-sort Models]
-    INTERACT3 -->|View Charts| CHARTS[Show Comparisons]
-    INTERACT3 -->|Read Recommendation| REC[Show Green Box]
+    INTERACT3 -->|Search User| SEARCH3[Find Customer]
+    INTERACT3 -->|View Profile| PROFILE3[Show CATE & Details]
+    INTERACT3 -->|Get Recommendation| REC3[Treat/Don't Treat]
     
-    INTERACT4 -->|Select Feature| IMPORTANCE[Highlight in Chart]
-    INTERACT4 -->|Hover Heatmap| TOOLTIP2[Show Values]
-    INTERACT4 -->|Check Trends| TIMESERIES[Show Line Chart]
+    INTERACT4 -->|View ATE| ATE4[Show Estimates]
+    INTERACT4 -->|Check Refutation| REF4[5 Validation Tests]
+    INTERACT4 -->|Compare Models| COMPARE4[Side-by-Side]
     
-    DISPLAY1 --> BACK1[Navigate Back]
-    TOOLTIP1 --> BACK1
-    TABLE1 --> BACK1
-    FILTER --> BACK2[Navigate Back]
-    PLOT --> BACK2
-    METRICS --> BACK2
-    SORT --> BACK3[Navigate Back]
-    CHARTS --> BACK3
-    REC --> BACK3
-    IMPORTANCE --> BACK4[Navigate Back]
-    TOOLTIP2 --> BACK4
-    TIMESERIES --> BACK4
+    INTERACT5 -->|View Production| PROD5[Current Model]
+    INTERACT5 -->|List Versions| VERSIONS5[All Models]
+    INTERACT5 -->|Check Drift| DRIFT5[Drift Detection]
     
-    BACK1 --> NAV
-    BACK2 --> NAV
-    BACK3 --> NAV
-    BACK4 --> NAV
+    INTERACT6 -->|Feature Importance| IMPORTANCE6[Top Features]
+    INTERACT6 -->|Segment Analysis| SEGMENT6[By Customer Group]
+    INTERACT6 -->|What-If| WHATIF6[Scenario Analysis]
+    
+    DISPLAY1 --> NAV
+    TRENDS1 --> NAV
+    SIM1 --> NAV
+    CREATE2 --> NAV
+    RESULTS2 --> NAV
+    COMPLETE2 --> NAV
+    SEARCH3 --> NAV
+    PROFILE3 --> NAV
+    REC3 --> NAV
+    ATE4 --> NAV
+    REF4 --> NAV
+    COMPARE4 --> NAV
+    PROD5 --> NAV
+    VERSIONS5 --> NAV
+    DRIFT5 --> NAV
+    IMPORTANCE6 --> NAV
+    SEGMENT6 --> NAV
+    WHATIF6 --> NAV
     
     NAV -->|Exit| END([Close App])
     
@@ -246,7 +259,9 @@ flowchart TD
     style OVERVIEW fill:#667eea,color:#fff
     style RT fill:#764ba2,color:#fff
     style AB fill:#ed64a6,color:#fff
+    style CUSTOMER fill:#f093fb,color:#fff
     style MODEL fill:#ff9a9e,color:#fff
+    style REGISTRY fill:#a8edea,color:#333
     style ANALYTICS fill:#feca57,color:#333
     style END fill:#4ecdc4
 ```
@@ -254,9 +269,18 @@ flowchart TD
 **User Flow:**
 1. **Entry** → Streamlit loads data (2 sec first time, instant after caching)
 2. **Default** → Overview Dashboard with key metrics
-3. **Navigation** → 5 specialized pages via sidebar
+3. **Navigation** → 7 specialized pages via sidebar
 4. **Interaction** → Charts, filters, hover effects, tables
 5. **Return** → Easy navigation between pages
+
+**Pages:**
+- **Overview** - KPIs, distributions, segment performance
+- **Real-time Monitoring** - Live event scoring with trend analytics
+- **A/B Test Tracking** - Create, monitor, and complete experiments
+- **Customer Lookup** - Individual customer CATE predictions
+- **Model Comparison** - ATE estimates and refutation tests
+- **Model Registry** - Model versioning, promotion, drift detection
+- **Advanced Analytics** - Feature importance, segment deep-dives
 
 ---
 
@@ -546,6 +570,10 @@ mindmap
       Event Stream Chart
         Moving average
         Time series
+      Event History
+        Trends Over Time
+        Distribution Analysis
+        Segment Performance
       Recent Events Table
         Last 20 scored
         User details
@@ -564,16 +592,45 @@ mindmap
         Avg calibration
       Next Steps
         Recommendations
+    Customer Lookup
+      Search Interface
+        User ID input
+        Search button
+      Customer Profile
+        Demographics
+        Historical data
+      CATE Prediction
+        Individual uplift
+        Confidence interval
+      Treatment Recommendation
+        Treat/Don't Treat
+        Expected value
     Model Comparison
       Version Table
         All models
         Performance metrics
       ATE Comparison
         Bar chart
+      Refutation Results
+        5 Validation Tests
+        Pass/Fail status
       Performance vs Complexity
         Scatter plot
       Recommendation
         Best model selection
+    Model Registry
+      Production Model
+        Current version
+        Deployment date
+      Model Versions
+        Version history
+        Performance metrics
+      Drift Detection
+        Distribution shift
+        Alerts
+      Promotion Actions
+        Deploy to production
+        Rollback
     Advanced Analytics
       Feature Importance
         Bar chart
@@ -602,8 +659,8 @@ mindmap
 
 **Navigation Flow:**
 - Start at center (Overview)
-- Branch to any of 5 specialized pages
-- Each page has 3-4 sub-sections
+- Branch to any of 7 specialized pages
+- Each page has 3-5 sub-sections
 - Can navigate freely between all pages
 
 ---
