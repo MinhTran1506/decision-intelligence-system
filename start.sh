@@ -212,9 +212,24 @@ wait_for_service() {
     print_info "Waiting for $name to be ready..."
     
     while [[ $attempt -lt $max_attempts ]]; do
-        if curl -s -f "$url" > /dev/null 2>&1 || wget -q --spider "$url" 2>/dev/null; then
+        # Try curl first
+        if curl -s -f "$url" > /dev/null 2>&1; then
             print_success "$name is ready!"
             return 0
+        fi
+        
+        # Try wget as fallback
+        if wget -q --spider "$url" 2>/dev/null; then
+            print_success "$name is ready!"
+            return 0
+        fi
+        
+        # On Windows, also try PowerShell Invoke-WebRequest
+        if [[ "$OS_TYPE" == "windows" ]]; then
+            if powershell.exe -Command "try { Invoke-WebRequest -Uri '$url' -UseBasicParsing -TimeoutSec 2 | Out-Null; exit 0 } catch { exit 1 }" 2>/dev/null; then
+                print_success "$name is ready!"
+                return 0
+            fi
         fi
         
         attempt=$((attempt + 1))

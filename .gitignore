@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 .env
 .env.*
-logs/.github/workflows/ci.yml
+logs/
+.github/workflows/ci.yml
