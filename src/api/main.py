@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
     try:
         # Load uplift scores
         uplift_data = pd.read_parquet(FILE_PATHS["uplift_scores"])
-        logger.info(f"✓ Loaded {len(uplift_data)} uplift scores")
+        logger.info(f"[OK] Loaded {len(uplift_data)} uplift scores")
         
         # Load model metadata (if available)
         model_metadata = {
@@ -53,7 +53,7 @@ async def lifespan(app: FastAPI):
             "segments": SEGMENTATION["segment_names"],
         }
         
-        logger.info("✓ API ready")
+        logger.info("[OK] API ready")
         
     except Exception as e:
         logger.error(f"Failed to load data: {e}")

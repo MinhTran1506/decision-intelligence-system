@@ -1,7 +1,32 @@
 version: '3.8'
 
 services:
-  # API Service
+  # Enhanced API Service with WebSocket
+  api-enhanced:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: decision-intel-api-enhanced
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python -m src.api.realtime_api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - decision-intel-network
+
+  # Original API Service (backward compatibility)
   api:
     build:
       context: .
@@ -26,7 +51,49 @@ services:
     networks:
       - decision-intel-network
 
-  # Dashboard Service (nginx serving static files)
+  # Streamlit Multi-page Application
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: decision-intel-streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: streamlit run src/streamlit_app/app.py --server.port=8501 --server.address=0.0.0.0
+    depends_on:
+      - api-enhanced
+    restart: unless-stopped
+    networks:
+      - decision-intel-network
+
+  # Real-time Event Processor
+  realtime-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: decision-intel-realtime
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python src/realtime/stream_ingestion.py
+    depends_on:
+      - api-enhanced
+    restart: unless-stopped
+    networks:
+      - decision-intel-network
+    profiles:
+      - realtime  # Only run when explicitly specified
+
+  # Original Dashboard Service (nginx serving static files)
   dashboard:
     image: nginx:alpine
     container_name: decision-intel-dashboard
@@ -36,6 +103,7 @@ services:
       - ./src/ui:/usr/share/nginx/html:ro
     depends_on:
       - api
+      - api-enhanced
     restart: unless-stopped
     networks:
       - decision-intel-network
@@ -58,11 +126,26 @@ services:
     networks:
       - decision-intel-network
 
+  # Redis for caching (optional, for production)
+  redis:
+    image: redis:7-alpine
+    container_name: decision-intel-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - decision-intel-network
+    profiles:
+      - production
+
 networks:
   decision-intel-network:
     driver: bridge
 
 volumes:
+  redis-data:
   data:
   models:
   logs:

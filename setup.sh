@@ -38,10 +38,15 @@ print_warning() {
 
 # Check Python version
 print_info "Checking Python version..."
-PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
+    PYTHON_CMD="python"
+else
+    PYTHON_CMD="python3"
+fi
+PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | awk '{print $2}')
 REQUIRED_VERSION="3.10"
 
-if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)"; then
+if ! $PYTHON_CMD -c "import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)"; then
     print_error "Python 3.10 or higher is required. Found: $PYTHON_VERSION"
     exit 1
 fi
@@ -83,7 +88,7 @@ print_success "Package structure created"
 # Create virtual environment
 print_info "Creating virtual environment..."
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    $PYTHON_CMD -m venv venv
     print_success "Virtual environment created"
 else
     print_warning "Virtual environment already exists"
@@ -91,12 +96,21 @@ fi
 
 # Activate virtual environment
 print_info "Activating virtual environment..."
-source venv/bin/activate
+# Detect OS and use appropriate activation path
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
+    venv/Scripts/activate
+else
+    source venv/bin/activate
+fi
 print_success "Virtual environment activated"
 
 # Upgrade pip
 print_info "Upgrading pip..."
-pip install --upgrade pip > /dev/null 2>&1
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" || "$OSTYPE" == "cygwin" ]]; then
+    python.exe -m pip install --upgrade pip > /dev/null 2>&1
+else
+    pip install --upgrade pip > /dev/null 2>&1
+fi
 print_success "Pip upgraded"
 
 # Install dependencies
@@ -111,8 +125,8 @@ pip install --quiet dowhy econml 2>&1 | grep -v "already satisfied" || true
 echo "Installing API framework..."
 pip install --quiet fastapi uvicorn[standard] pydantic python-multipart 2>&1 | grep -v "already satisfied" || true
 
-echo "Installing visualization..."
-pip install --quiet matplotlib seaborn plotly 2>&1 | grep -v "already satisfied" || true
+echo "Installing visualization and UI..."
+pip install --quiet matplotlib seaborn plotly streamlit 2>&1 | grep -v "already satisfied" || true
 
 echo "Installing utilities..."
 pip install --quiet loguru click tqdm pyyaml python-dotenv duckdb 2>&1 | grep -v "already satisfied" || true
@@ -193,7 +207,7 @@ chmod +x test_installation.py
 
 # Test installation
 print_info "Testing installation..."
-python3 test_installation.py
+$PYTHON_CMD test_installation.py
 if [ $? -eq 0 ]; then
     print_success "Installation test passed"
 else

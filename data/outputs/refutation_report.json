@@ -4,17 +4,17 @@
     "placebo": {
       "test": "placebo_treatment",
       "passed": "True",
-      "original_effect": 47.583354051007646,
-      "placebo_effect": 0.06970057530376807,
+      "original_effect": 47.5833540510029,
+      "placebo_effect": 0.06970057530383116,
       "p_value": 1.0,
       "interpretation": "PASS: Placebo effect is small, original estimate robust"
     },
     "random_cause": {
       "test": "random_common_cause",
       "passed": "True",
-      "original_effect": 47.583354051007646,
-      "new_effect": 47.58267114021159,
-      "change_pct": 0.0014351884386425693,
+      "original_effect": 47.5833540510029,
+      "new_effect": 47.58267114021049,
+      "change_pct": 0.0014351884309673612,
       "interpretation": "PASS: Estimate stable with random confounder"
     },
     "subset_validation": {
@@ -28,10 +28,10 @@
     "data_subset": {
       "test": "data_subset",
       "passed": "True",
-      "original_effect": 47.583354051007646,
-      "subset_effect": 47.56407188161896,
+      "original_effect": 47.5833540510029,
+      "subset_effect": 47.5640718816193,
       "subset_fraction": 0.8,
-      "change_pct": 0.040522930283600093,
+      "change_pct": 0.04052293027291241,
       "interpretation": "PASS: Estimate consistent on data subset"
     },
     "bootstrap": {
